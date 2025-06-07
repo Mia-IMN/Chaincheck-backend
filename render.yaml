@@ -4,6 +4,9 @@ services:
     env: node
     region: oregon
     branch: main
-    buildCommand: NODE_ENV=development npm install && npm run build
-    startCommand: NODE_ENV=production npm start
+    buildCommand: npm install && npm run build
+    startCommand: npm start
     plan: starter
+    envVars:
+      - key: NODE_ENV
+        value: production  # Only for runtime, since buildCommand overrides NODE_ENV
