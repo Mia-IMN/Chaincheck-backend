@@ -129,6 +129,6 @@ app.listen(PORT, () => {
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔑 GoPlus API: ${process.env.GOPLUS_API_KEY ? '✅ Configured' : '❌ Missing'}`);
   console.log(`🔑 CoinGecko API: ${process.env.COINGECKO_API_KEY ? '✅ Configured' : '❌ Missing'}`);
-  console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3001'}`);
+  console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'https://suichaincheck.vercel.app'}`);
   console.log('==========================================');
 });
