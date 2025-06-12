@@ -1,9 +1,18 @@
-// backend/src/server.ts
-
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import blogRoutes from './services/blogRoutes';
 import { TokenAnalysisService } from './services/tokenAnalysisService';
+import mongoose from 'mongoose';
+import connectDB from './config';
+
+
+mongoose.connect(process.env.MONGO_URI || '')
+  .then(() => {
+    console.log('Connected to MongoDB');
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Load environment variables
 dotenv.config();
@@ -17,6 +26,8 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use('/api/blogs', blogRoutes);
+
 
 // Request logging middleware
 app.use((req, res, next) => {
