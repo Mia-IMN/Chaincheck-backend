@@ -3,41 +3,37 @@ import Blog from './blogs';
 
 const router = Router();
 
-// ✅ IMPROVED: Get all blogs with better error handling
+// ✅ Get all blogs
 router.get('/', async (req: Request, res: Response) => {
   try {
     console.log('📚 Fetching all blogs...');
-    
-    const blogs = await Blog.find()
-      .sort({ createdAt: -1 }) // Most recent first
-      .lean(); // Returns plain JS objects for better performance
-    
+
+    const blogs = await Blog.find().sort({ createdAt: -1 }).lean();
     console.log(`✅ Found ${blogs.length} blogs`);
-    
-    res.json({
+
+    return res.json({
       success: true,
       count: blogs.length,
       data: blogs
     });
   } catch (error: any) {
     console.error('❌ Error fetching blogs:', error.message);
-    res.status(500).json({ 
+    return res.status(500).json({
       success: false,
       message: 'Error fetching blogs',
-      error: error.message 
+      error: error.message
     });
   }
 });
 
-// ✅ IMPROVED: Create new blog with validation
+// ✅ Create new blog
 router.post('/', async (req: Request, res: Response) => {
   try {
     console.log('📝 Creating new blog...');
     console.log('📋 Blog data:', req.body);
-    
+
     const { id, title, creator } = req.body;
-    
-    // ✅ IMPROVED: Validate required fields
+
     if (!id || !title || !creator) {
       return res.status(400).json({
         success: false,
@@ -45,8 +41,7 @@ router.post('/', async (req: Request, res: Response) => {
         required: ['id', 'title', 'creator']
       });
     }
-    
-    // ✅ IMPROVED: Check if blog ID already exists
+
     const existingBlog = await Blog.findOne({ id });
     if (existingBlog) {
       return res.status(409).json({
@@ -55,28 +50,24 @@ router.post('/', async (req: Request, res: Response) => {
         conflictingId: id
       });
     }
-    
-    // Create new blog
+
     const newBlog = new Blog({
       id: id.trim(),
       title: title.trim(),
       creator: creator.trim()
     });
-    
+
     const savedBlog = await newBlog.save();
-    
     console.log('✅ Blog created successfully:', savedBlog.id);
-    
-    res.status(201).json({
+
+    return res.status(201).json({
       success: true,
       message: 'Blog created successfully',
       data: savedBlog
     });
-    
   } catch (error: any) {
     console.error('❌ Error creating blog:', error.message);
-    
-    // Handle specific MongoDB errors
+
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,
@@ -84,7 +75,7 @@ router.post('/', async (req: Request, res: Response) => {
         error: 'Duplicate key error'
       });
     }
-    
+
     if (error.name === 'ValidationError') {
       return res.status(400).json({
         success: false,
@@ -92,8 +83,8 @@ router.post('/', async (req: Request, res: Response) => {
         errors: Object.values(error.errors).map((err: any) => err.message)
       });
     }
-    
-    res.status(500).json({
+
+    return res.status(500).json({
       success: false,
       message: 'Error creating blog',
       error: error.message
@@ -101,15 +92,14 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// ✅ IMPROVED: Get blog by ID
+// ✅ Get blog by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
     console.log(`🔍 Fetching blog with ID: ${id}`);
-    
+
     const blog = await Blog.findOne({ id }).lean();
-    
+
     if (!blog) {
       return res.status(404).json({
         success: false,
@@ -117,17 +107,16 @@ router.get('/:id', async (req: Request, res: Response) => {
         id: id
       });
     }
-    
+
     console.log('✅ Blog found:', blog.title);
-    
-    res.json({
+
+    return res.json({
       success: true,
       data: blog
     });
-    
   } catch (error: any) {
     console.error('❌ Error fetching blog:', error.message);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Error fetching blog',
       error: error.message
@@ -135,15 +124,14 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// ✅ IMPROVED: Delete blog by ID (optional)
+// ✅ Delete blog by ID
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
     console.log(`🗑️ Deleting blog with ID: ${id}`);
-    
+
     const deletedBlog = await Blog.findOneAndDelete({ id });
-    
+
     if (!deletedBlog) {
       return res.status(404).json({
         success: false,
@@ -151,18 +139,17 @@ router.delete('/:id', async (req: Request, res: Response) => {
         id: id
       });
     }
-    
+
     console.log('✅ Blog deleted:', deletedBlog.title);
-    
-    res.json({
+
+    return res.json({
       success: true,
       message: 'Blog deleted successfully',
       data: deletedBlog
     });
-    
   } catch (error: any) {
     console.error('❌ Error deleting blog:', error.message);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Error deleting blog',
       error: error.message
